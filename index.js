@@ -20,37 +20,47 @@ function Scrollbars(element) {
 
 	// inject the wrapper
 	this.wrapper = document.createElement('div');
+    
+    moveChildren(this.elem, this.wrapper);
+    
+    this.elem.appendChild(this.wrapper);
+    
 	// inherit the classes for styling
 	// TODO: also make this work with styling based on id
-	this.wrapper.className = this.elem.className;
-	this.elem.parentNode.replaceChild(this.wrapper, this.elem);
-	this.wrapper.appendChild(this.elem);
+	//this.wrapper.className = this.elem.className;
+	//this.elem.parentNode.replaceChild(this.wrapper, this.elem);
+	//this.wrapper.appendChild(this.elem);
 
 	// save the current style, so we can restore if necessary
-	var style = getComputedStyle(this.elem);
+	var compStyle = getComputedStyle(this.elem);
 	this.elemstyle = {
-		position: style.position,
-		top: style.top,
-		right: style.right,
-		bottom: style.bottom,
-		left: style.left,
+		position: compStyle.position,
+		top: compStyle.top,
+		right: compStyle.right,
+		bottom: compStyle.bottom,
+		left: compStyle.left,
 	};
 
-	classes(this.elem).add('scrollbars-override');
-	setPosition(this.elem, [0, -scrollbarSize, -scrollbarSize, 0]);
+	classes(this.wrapper).add('scrollbars-override');
+	setPosition(this.wrapper, [0, -scrollbarSize, -scrollbarSize, 0]);
 
-	style = this.wrapper.style;
+	var style = this.elem.style;
 	// set the wrapper to be positioned
 	// but don’t mess with already positioned elements
 	if (!~positioned.indexOf(this.elemstyle.position))
 		style.position = 'relative';
 	style.overflow = 'hidden';
-
+    
+    // fix padding
+    ['left', 'right', 'top', 'bottom'].forEach(function (dir) {
+        self.wrapper.style['padding-' + dir] = compStyle['padding-' + dir];
+    });
+    
 	// and create scrollbar handles
 	this.handleV = handle('vertical', [0, 0, 0, undefined]);
-	this.wrapper.appendChild(this.handleV);
+	this.elem.appendChild(this.handleV);
 	this.handleH = handle('horizontal', [undefined, 0, 0, 0]);
-	this.wrapper.appendChild(this.handleH);
+	this.elem.appendChild(this.handleH);
 
 	this.dragging = null;
 
@@ -63,11 +73,11 @@ function Scrollbars(element) {
 	}, 1000);
 
 	// hook them up to scroll events
-	this.elem.addEventListener('scroll', function () {
+	this.wrapper.addEventListener('scroll', function () {
 		self.refresh();
 	}, false);
 	// and mouseenter
-	this.elem.addEventListener('mouseenter', function () {
+	this.wrapper.addEventListener('mouseenter', function () {
 		self.refresh();
 	}, false);
 
@@ -114,15 +124,15 @@ Scrollbars.prototype._startDrag = function Scrollbars__startDrag(handle, ev) {
 
 Scrollbars.prototype._mouseMove = function Scrollbars__mouseMove(ev) {
 	var vertical = this.dragging.elem == this.handleV;
-	var rect = this.elem.getBoundingClientRect();
-	var size = handleSize(this.elem);
+	var rect = this.wrapper.getBoundingClientRect();
+	var size = handleSize(this.wrapper);
 	var offset;
 	if (vertical) {
 		offset = ev.pageY - rect.top - this.dragging.offset;
-		this.elem.scrollTop = offset / size.sizeH * size.sTM;
+		this.wrapper.scrollTop = offset / size.sizeH * size.sTM;
 	} else {
 		offset = ev.pageX - rect.left - this.dragging.offset;
-		this.elem.scrollLeft = offset / size.sizeW * size.sLM;
+		this.wrapper.scrollLeft = offset / size.sizeW * size.sLM;
 	}
 };
 
@@ -157,11 +167,11 @@ function handleSize(elem) {
  * Refreshes (and shows) the scrollbars
  */
 Scrollbars.prototype.refresh = function Scrollbars_refresh() {
-	var size = handleSize(this.elem);
+	var size = handleSize(this.wrapper);
 	var scrolledPercentage;
 	// vertical
 	if (size.sTM) {
-		scrolledPercentage = this.elem.scrollTop / size.sTM;
+		scrolledPercentage = this.wrapper.scrollTop / size.sTM;
 		setPosition(this.handleV, [
 			scrolledPercentage * size.sizeH,
 			0,
@@ -173,7 +183,7 @@ Scrollbars.prototype.refresh = function Scrollbars_refresh() {
 
 	// horizontal
 	if (size.sLM) {
-		scrolledPercentage = this.elem.scrollLeft / size.sLM;
+		scrolledPercentage = this.wrapper.scrollLeft / size.sLM;
 		setPosition(this.handleH, [
 			undefined,
 			(1 - scrolledPercentage) * size.sizeW + size.corner,
@@ -190,15 +200,9 @@ Scrollbars.prototype.destroy = function Scrollbars_destroy() {
 	var self = this;
 	if (this.dragging && this.dragging.handler)
 		this._endDrag(); // clear global events
-	this.wrapper.removeChild(this.elem);
-	this.wrapper.parentNode.replaceChild(this.elem, this.wrapper);
-	classes(this.elem).remove('scrollbars-override');
-
-	var style = this.elem.style;
-	style.top = this.elemstyle.top;
-	style.right = this.elemstyle.right;
-	style.left = this.elemstyle.left;
-	style.bottom = this.elemstyle.bottom;
+    
+    moveChildren(this.wrapper, this.elem);
+    this.elem.removeChild(this.wrapper);
 };
 
 // create a handle
@@ -231,4 +235,10 @@ function setPosition(el, positions) {
 function empty(el) {
 	while (el.firstChild)
 		el.removeChild(el.firstChild);
+}
+
+function moveChildren(el, target) {
+    while (el.firstChild) {
+        target.appendChild(el.firstChild);
+    }
 }
