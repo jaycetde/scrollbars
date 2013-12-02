@@ -1,19 +1,23 @@
 {
-  "name": "scrollbars",
-  "repo": "Swatinem/scrollbars",
-  "version": "0.0.1",
-  "description": "An efficient overflow area with custom scrollbars",
-  "keywords": [],
-  "scripts": [
+    "name": "scrollbars",
+    "repo": "Swatinem/scrollbars",
+    "version": "0.0.1",
+    "description": "An efficient overflow area with custom scrollbars",
+    "keywords": [],
+    "scripts": [
     "index.js"
-  ],
-  "styles": [
+    ],
+    "styles": [
     "scrollbars.css"
-  ],
-  "dependencies": {
-    "eivindfjeldstad/scrollbar-size": "*",
-    "component/debounce": "*",
-    "component/classes": "*"
-  },
-  "license": "LGPLv3"
+    ],
+    "dependencies": {
+        "eivindfjeldstad/scrollbar-size": "*",
+        "component/debounce": "*",
+        "component/classes": "*",
+        "component/event": "*",
+        "jkroso/computed-style": "*",
+        "yields/prevent": "*",
+        "JayceTDE/drag": "*"
+    },
+    "license": "LGPLv3"
 }

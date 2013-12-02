@@ -1,3 +1,56 @@
+.scrollbars {
+    position: relative;
+    overflow: hidden !important;
+}
+
+.scrollbars .scroller {
+    position: absolute;
+    width: auto;
+    height: auto;
+    top: 0;
+    left: 0;
+    overflow: scroll;
+}
+
+.scrollbars .handle {
+    position: absolute;
+    opacity: .8;
+    transition: opacity .5s;
+    -webkit-transition: opacity .5s;
+    -mox-transition: opacity .5s;
+    z-index: 100;
+}
+
+.scrollbars.hidden-bars .handle {
+    opacity: 0;
+    transition: opacity .5s, visibility 0s .5s;
+    -webkit-transition: opacity .5s, visibility 0s .5s;
+    -mox-transition: opacity .5s, visibility 0s .5s;
+    visibility: hidden;
+}
+
+.scrollbars .handle.vertical {
+    top: 2px;
+    right: 2px;
+    bottom: 2px;
+    width: 6px;
+}
+
+.scrollbars .handle.horizontal {
+    left: 2px;
+    bottom: 2px;
+    right: 2px;
+    height: 6px;
+}
+
+.scrollbars .bar {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 3px;
+    background: #888;
+}
+
 .scrollbars-override {
 	/* these all need to be !important to override the original elements style */
 	overflow: scroll !important;
